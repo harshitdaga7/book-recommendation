@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+
+  <title>Home</title>
+</head>
+
+<body>
+  <div class="container mt-4" >
+    
+    <!--search bar-->
+    <div class="row">
+      <div class="col-md-9">
+        <!--search bar-->
+        <div class="input-group mb-3">
+          <button type="button"  id = "search_btn" class="btn btn-outline-primary"><img src = "/static/main/searchicon.png" width = "20" height = "16"></button>
+          <input type="text" id = "search" class="form-control form-control-lg" placeholder="Search" aria-label="Username" aria-describedby="basic-addon1">
+          <button id = "drop" class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">name</button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a id = "name_option" class="dropdown-item" >name</a></li>
+            <li><a id = "author_option" class="dropdown-item">author</a></li>
+            <li><a id = "category_option" class="dropdown-item">category</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button id = "username_btn" type="button" class="btn btn-outline-primary">username</button>
+      </div>
+
+      <div class="col-md-1 d-grid">
+        <a class="btn-lg btn-danger" href="login" role="button">logout</a>
+      </div>
+
+    </div>
+
+    <div class = "row mt-3">
+      <div class = "col-md-9">
+        <div class="card">
+          <div id = "search_body" class="card-body">
+            
+
+          </div>
+        </div>
+      </div>
+
+
+      <div class = "col-md-3" style = "max-height: 720px; overflow-y: scroll;">
+        <div class="card">
+          <div class="card-header border-primary">You might like...</div>
+          <div id = "recommend_body" class="card-body">
+
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    </div>
+
+  
+    
+
+
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+    crossorigin="anonymous"></script>
+</body>
+
+<script type="text/javascript">
+  
+  /// if user is logged in
+  var username = sessionStorage.getItem('username');
+  console.log('home',username);
+
+  if(username === null)
+  {
+     window.location.href = 'login'
+  }
+  else
+  {
+    /// do something
+    makeButtonUsername(username);
+    load_recommend(username);
+    ///handle search button
+    document.getElementById('search_btn').addEventListener('click',handle_search)
+
+    /// HANDLE DROP BUTTON
+    document.getElementById('name_option').addEventListener('click',handle_name_op)
+    document.getElementById('author_option').addEventListener('click',handle_author_op)
+    document.getElementById('category_option').addEventListener('click',handle_category_op)
+    document.getElementById('username_btn').addEventListener('click',handle_username_btn)
+  }
+
+
+  function handle_username_btn() {
+
+    console.log('inside ',username)
+    load_recommend(username);
+    // body...
+  }
+  function makeButtonUsername(username){
+
+    var username_btn = document.getElementById('username_btn')
+    username_btn.innerHTML =  username;
+
+  }
+
+  function handle_search()
+  {
+    let url = "";
+    let search = document.getElementById('search').value;
+    let prep = document.getElementById('drop').innerHTML;
+
+    console.log(url + "/" + prep + "/" + search)
+
+    url = prep;
+    console.log(url);
+    fetch(url,{
+
+        method:'POST',
+        headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"            
+        },
+        body: JSON.stringify({
+            'username': username,
+            'query':search
+        })
+        }).then((resp) => resp.json())
+        .then(function(data){
+
+            /// process data
+            console.log(data)
+            handle_search_res(data)
+
+
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+  }
+
+  function handle_name_op()
+  {
+    let drop = document.getElementById('drop')
+    drop.innerHTML = 'name'
+  }
+
+  function handle_author_op()
+  {
+    let drop = document.getElementById('drop')
+    drop.innerHTML = 'author'
+  }
+
+  function handle_category_op()
+  {
+    let drop = document.getElementById('drop')
+    drop.innerHTML = 'category'
+  }
+
+  function handle_search_res(data)
+  { 
+      let search_body = document.getElementById('search_body')
+      search_body.innerHTML = "";
+      if(data['status'] == 'OK')
+      {
+         var countKey = Object.keys(data).length-1;
+
+         for(var i = 0;i<countKey;i++)
+         {
+            name = data[i].name;
+            image = data[i].image;
+            rating = data[i].rating;
+            category = data[i].category;
+            author = data[i].author;
+
+            let sample  = `
+          <div class="card mb-3">
+              <div class="row g-0">
+                <div class="col-md-3">
+                  <img src=${image} alt="could not find" width = "150" height = "150">
+                </div>
+                <div class="col-md-9">
+                  <div class="card-body">
+                    <h5 class="card-title">${name}</h5>
+                    <p class="card-text">Author : ${author}</p>
+                    <p class="card-text">Rating : ${rating}</p>
+                    <p class="card-text">Category :${category} </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+         `
+
+         search_body.innerHTML += sample;
+         }
+      }
+      else
+      {
+        search_body.innerHTML = 'Sorry Nothing Was Found'
+      }
+  }
+
+  function load_recommend(username)
+  {
+     var recommend_body = document.getElementById('recommend_body');
+     recommend_body.innerHTML = '';
+
+     var url = 'recommend'
+      fetch(url,{
+
+        method:'POST',
+        headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"            
+        },
+        body: JSON.stringify({
+            'username': username,
+        })
+        }).then((resp) => resp.json())
+        .then(function(data){
+
+            /// process data
+            console.log(data)
+            handle_recommend_res(data)
+
+
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+
+
+  }
+
+
+  function handle_recommend_res(data)
+  {
+      var recommend_body = document.getElementById('recommend_body');
+      recommend_body.innerHTML = '';
+      var countKey = Object.keys(data).length;
+
+      for(let i = 0;i<countKey;i++)
+      {
+            name = data[i].name;
+            image = data[i].image;
+            rating = data[i].rating;
+            category = data[i].category;
+            author = data[i].author;
+
+
+            let sample = `
+
+            <div class="card mb-3" style = "width: 15rem;">
+              <img src=${image} class="card-img-top" alt="could not find" height = "200">
+              <div class="card-body">
+                <h5 class="card-title">${name}</h5>
+                <p class = "card-text">Author: ${author} </p>
+                <p class = "card-text">Rating : ${rating}</p>
+                <p class = "card-text"> Category: ${category}</p>
+              </div>
+            </div>
+            `
+
+            recommend_body.innerHTML += sample;
+      }
+  }
+
+
+
+</script>
+
+</html>
