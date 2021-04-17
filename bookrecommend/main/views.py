@@ -18,7 +18,7 @@ def login(request):
 		data = json.loads(request.body)
 		usrnm = data['username']
 		password = data['password']
-		print(data) #comment it afterwards
+		##print(data) #comment it afterwards
 
 		#status code : 'OK' --> right user and password
 		#status code : 'DNE' --> USER DOES NOT EXIST
@@ -46,7 +46,7 @@ def signup(request):
 		usrnm = data['username']
 		password = data['password']
 		email = data['email']
-		print(data) #comment it
+		##print(data) #comment it
 		#status code :'EX' --> username already exits
 		#status code : 'OK' --> success  registered
 		try:
@@ -67,12 +67,12 @@ def signup(request):
 ##################################################
 @csrf_exempt
 def name_search(request):
-	print('name called')
+	##print('name called')
 	if request.method == 'POST':
 		data = json.loads(request.body)
 		username = data['username']
 		query = data['query']
-		print(data)
+		##print(data)
 		q = book.objects.filter(name__icontains = query)[:10]
 		update_recommend(q,username)
 		res = makeJson(q)
@@ -82,12 +82,12 @@ def name_search(request):
 #################################################
 @csrf_exempt
 def author_search(request):
-	print('author called')
+	##print('author called')
 	if request.method == 'POST':
 		data = json.loads(request.body)
 		username = data['username']
 		query = data['query']
-		print(data) 
+		##print(data) 
 		q = book.objects.filter(author__icontains = query)[:10]
 		update_recommend(q,username)
 		res = makeJson(q)
@@ -95,12 +95,12 @@ def author_search(request):
 
 @csrf_exempt
 def category_search(request):
-	print('cat called')
+	##print('cat called')
 	if request.method == 'POST':
 		data = json.loads(request.body)
 		username = data['username']
 		query = data['query']
-		print(data)
+		##print(data)
 		q = book.objects.filter(category__icontains = query)[:10]
 		update_recommend(q,username)
 		res = makeJson(q)
@@ -109,11 +109,11 @@ def category_search(request):
 
 @csrf_exempt
 def recommend(request):
-	print('recommend calles')
+	#print('recommend calles')
 	if request.method == 'POST':
 		data = json.loads(request.body)
 		username = data['username']
-		print(data)
+		#print(data)
 		key_main = ['Medical','Science-Geography','Art-Photography','Biography','Business-Finance-Law','Childrens-Books','Computing','Crafts-Hobbies','Crime-Thriller','Dictionaries-Languages','Entertainment','Food-Drink','Graphic-Novels-Anime-Manga','Health','History-Archaeology','Home-Garden','Humour','Mind-Body-Spirit','Natural-History','Personal-Development','Poetry-Drama','Reference','Religion','Romance','Science-Fiction-Fantasy-Horror','Society-Social-Sciences','Sport','Stationery','Teaching-Resources-Education','Technology-Engineering','Teen-Young-Adult','Transport','Travel-Holiday-Guides']
 		user = userinfo.objects.get(username = username)
 		rank = user.getRankings()
@@ -126,7 +126,7 @@ def recommend(request):
 		for freq,ind in rank_convert:
 			cat_list.append(key_main[ind])
 
-		print(cat_list)
+		#print(cat_list)
 
 		res = {}
 
@@ -197,6 +197,6 @@ def update_recommend(q,username):
 
 	s = [str(i) for i in converted_s]
 	res = ','.join(s)
-	print(res)
+	#print(res)
 	user.category = res
 	user.save()
